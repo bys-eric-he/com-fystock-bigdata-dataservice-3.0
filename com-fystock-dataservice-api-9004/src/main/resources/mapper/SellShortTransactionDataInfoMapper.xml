@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.fystock.bigdata.cloud.mapper.SellShortTransactionDataInfoMapper">
+
+    <resultMap type="com.fystock.bigdata.cloud.entity.clickhouse.SellShortTransactionDataInfo"
+               id="SellShortTransactionDataInfoMap">
+        <result property="stockCode" jdbcType="VARCHAR" column="stock_code"/>
+        <result property="stockName" jdbcType="VARCHAR" column="stock_name"/>
+        <result property="count" jdbcType="BIGINT" column="count"/>
+        <result property="sum" jdbcType="DECIMAL" column="sum"/>
+        <result property="tradeDate" jdbcType="VARCHAR" column="trade_date"/>
+        <result property="createDateTime" jdbcType="VARCHAR" column="create_datetime"/>
+    </resultMap>
+
+    <select id="getSellShortTransactionDataList" parameterType="java.lang.String"
+            resultMap="SellShortTransactionDataInfoMap">
+        SELECT sstd.stock_code,
+               sstd.stock_name,
+               sstd.`count`,
+               sstd.`sum`,
+               sstd.trade_date,
+               sstd.create_datetime
+        FROM DWS_BIGSCREEN_DATA.SELL_SHORT_TRANSACTION_DATA sstd
+        WHERE sstd.trade_date = #{tradeDate,jdbcType=VARCHAR}
+    </select>
+
+    <select id="getSellShortTransactionDataInfo" parameterType="java.lang.String"
+            resultMap="SellShortTransactionDataInfoMap">
+        SELECT sstd.stock_code,
+               sstd.stock_name,
+               sstd.`count`,
+               sstd.`sum`,
+               sstd.trade_date,
+               sstd.create_datetime
+        FROM DWS_BIGSCREEN_DATA.SELL_SHORT_TRANSACTION_DATA sstd
+        WHERE sstd.trade_date = #{tradeDate,jdbcType=VARCHAR}
+          AND sstd.stock_code = #{stockCode,jdbcType=VARCHAR}
+    </select>
+
+    <insert id="insertSellShortTransactionDataInfo"
+            parameterType="com.fystock.bigdata.cloud.entity.clickhouse.SellShortTransactionDataInfo">
+        INSERT
+        INTO DWS_BIGSCREEN_DATA.SELL_SHORT_TRANSACTION_DATA(stock_code,
+        stock_name,
+        `count`,
+        `sum`,
+        trade_date,
+        create_datetime)
+        VALUES
+        <foreach collection="sellShortTransactionDataInfos" item="item" index="i" separator=",">
+            (#{item.stockCode,jdbcType=VARCHAR},
+            #{item.stockName,jdbcType=VARCHAR},
+            #{item.count,jdbcType=BIGINT},
+            #{item.sum,jdbcType=DECIMAL},
+            #{item.tradeDate,jdbcType=VARCHAR},
+            #{item.createDateTime,jdbcType=VARCHAR})
+        </foreach>
+    </insert>
+</mapper>

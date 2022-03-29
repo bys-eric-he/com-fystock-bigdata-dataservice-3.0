@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fystock.bigdata.cloud.mapper.AgeRatioUserInfoMapper">
+    <resultMap id="BaseResultMap" type="com.fystock.bigdata.cloud.entity.mysql.AgeRatioUserInfo">
+        <result column="age" property="age" jdbcType="VARCHAR"/>
+        <result column="total_count" property="totalCount" jdbcType="INTEGER"/>
+        <result column="age_count" property="ageCount" jdbcType="INTEGER"/>
+        <result column="ratio" property="ratio" jdbcType="DECIMAL"/>
+        <result column="import_datetime" property="importDateTime" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="findAllAgeRatioUser" resultMap="BaseResultMap">
+        SELECT
+            age,
+            import_datetime,
+            age_count,
+            ratio,
+            total_count
+        FROM
+            age_ratio_user_info
+        WHERE
+                import_datetime = (
+                SELECT
+                    max(import_datetime)
+                FROM
+                    age_ratio_user_info
+            )
+    </select>
+    <select id="findAllAgeRatioUserByImportDateTime" parameterType="string" resultMap="BaseResultMap">
+        SELECT
+            age,
+            import_datetime,
+            age_count,
+            ratio,
+            total_count
+        FROM
+            age_ratio_user_info
+        WHERE
+            import_datetime =  #{importDateTime}
+    </select>
+</mapper>

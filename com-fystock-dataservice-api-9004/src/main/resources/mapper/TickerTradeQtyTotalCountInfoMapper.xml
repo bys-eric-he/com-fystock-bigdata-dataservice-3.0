@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.fystock.bigdata.cloud.mapper.TickerTradeQtyTotalCountInfoMapper">
+
+    <resultMap type="com.fystock.bigdata.cloud.model.TickerTradeQtyTotalCountInfo"
+               id="TickerTradeQtyTotalCountInfoMap">
+        <result property="assetId" jdbcType="VARCHAR" column="asset_id"/>
+        <result property="stockCode" jdbcType="VARCHAR" column="stk_code"/>
+        <result property="stockName" jdbcType="VARCHAR" column="stk_name"/>
+        <result property="totalCount" jdbcType="BIGINT" column="total_count"/>
+        <result property="totalSum" jdbcType="DECIMAL" column="total_sum"/>
+        <result property="tradeDate" jdbcType="VARCHAR" column="ticker_trade_date"/>
+    </resultMap>
+
+    <select id="getTickerTradeQtyTotalCountInfo" parameterType="java.lang.String"
+            resultMap="TickerTradeQtyTotalCountInfoMap">
+        SELECT asset_id,
+               stk_code,
+               stk_name,
+               ticker_trade_date,
+               SUM(ticker_trade_qty)                      AS total_count,
+               SUM(ticker_trade_qty * ticker_trade_price) AS total_sum
+        FROM DWS_BIGSCREEN_DATA.TICKER_QUAT_WIDE
+        WHERE ticker_trade_date = #{tradeDate,jdbcType=VARCHAR}
+          AND stk_code = #{stockCode,jdbcType=VARCHAR}
+        GROUP BY asset_id,
+                 stk_code,
+                 stk_name,
+                 ticker_trade_date
+    </select>
+</mapper>

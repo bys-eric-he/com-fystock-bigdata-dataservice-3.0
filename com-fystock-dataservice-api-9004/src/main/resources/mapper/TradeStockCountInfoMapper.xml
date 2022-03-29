@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.fystock.bigdata.cloud.mapper.TradeStockCountInfoMapper">
+
+    <resultMap type="com.fystock.bigdata.cloud.model.TradeStockCountInfo" id="TradeStockCountInfoMap">
+        <result property="date" jdbcType="VARCHAR" column="date"/>
+        <result property="time" jdbcType="VARCHAR" column="time"/>
+        <result property="trade_buy_count" jdbcType="BIGINT" column="tradeBuyCount"/>
+        <result property="trade_sale_count" jdbcType="BIGINT" column="tradeSaleCount"/>
+    </resultMap>
+
+    <select id="getTradeStockCountInfo" parameterType="java.lang.String" resultMap="TradeStockCountInfoMap">
+        WITH addMinutes(r.date_time, 15) AS endDt
+        SELECT toDate(r.date_time)            AS `date`,
+               formatDateTime(endDt, '%H:%M') AS `time`,
+               r.trade_buy_count,
+               r.trade_sale_count
+        FROM (
+                 SELECT toStartOfFifteenMinutes(toDateTime(trade_time))        AS date_time,
+                        SUM(if(bs_flag = '1', toInt64OrZero(business_qty), 0)) AS trade_buy_count,
+                        SUM(if(bs_flag = '2', toInt64OrZero(business_qty), 0)) AS trade_sale_count
+                 FROM DWS_BIGSCREEN_DATA.TRADE_JOIN_USER_AND_ASSET_TEST
+                 WHERE exchange_type = 'K'
+                   AND toDate(trade_time) = #{tradeDate,jdbcType=VARCHAR}
+                   AND is_grey = '0'
+                 GROUP BY date_time
+                 ORDER BY date_time ASC
+             ) AS r
+    </select>
+
+    <select id="getLastMonthTradeTradeStockCountInfo" parameterType="java.lang.String"
+            resultMap="TradeStockCountInfoMap">
+        SELECT r.`date`,
+               SUM(r.trade_buy_count) AS trade_buy_count,
+               SUM(r.trade_sale_count) AS trade_sale_count
+        FROM (
+                 SELECT toDate(trade_time)                                AS `date`,
+                        if(bs_flag = '1', toInt64OrZero(business_qty), 0) AS trade_buy_count,
+                        if(bs_flag = '2', toInt64OrZero(business_qty), 0) AS trade_sale_count
+                 FROM DWS_BIGSCREEN_DATA.TRADE_JOIN_USER_AND_ASSET_TEST
+                 WHERE exchange_type = 'K'
+                   AND toDate(trade_time) &gt;= #{beginTradeDate,jdbcType=VARCHAR}
+                   AND toDate(trade_time) &lt;= #{endTradeDate,jdbcType=VARCHAR}
+                   AND is_grey = '0'
+             ) AS r
+        GROUP BY r.`date`
+        ORDER BY r.`date` ASC
+    </select>
+</mapper>

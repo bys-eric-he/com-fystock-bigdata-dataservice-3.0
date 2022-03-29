@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fystock.bigdata.cloud.mapper.StockClosingPriceMapper">
+    <select id="getStockClosingPriceInfo" parameterType="String"
+            resultType="com.fystock.bigdata.cloud.entity.hbase.StockClosingPrice">
+        SELECT
+            ID AS id,
+            ASSET_ID AS assetId,
+            TRADE_DATE AS tradeDate,
+            SEND_TIME AS sendTime,
+            SEQ_NUM AS seqNum,
+            UPSERT_TIME AS upsertTime,
+            CLOSING_PRICE AS closingPrice
+        FROM
+            HK_MARKET_DATA.STOCK_CLOSING_PRICE
+        WHERE
+            ASSET_ID = #{stockCode}
+          AND TRADE_DATE = #{tradeDate}
+    </select>
+</mapper>

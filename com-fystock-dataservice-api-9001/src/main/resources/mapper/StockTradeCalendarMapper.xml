@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fystock.bigdata.cloud.mapper.StockTradeCalendarDao">
+    <resultMap id="BaseResultMap" type="com.fystock.bigdata.cloud.entity.mysql.StockTradeCalendar">
+        <result column="calendar_id" property="calendarId" jdbcType="INTEGER"/>
+        <result column="normal_date" property="normalDate" jdbcType="DATE"/>
+        <result column="region_code" property="regionCode" jdbcType="VARCHAR"/>
+        <result column="is_trade_day" property="isTradeDay" jdbcType="TINYINT"/>
+        <result column="last_trd" property="lastTrade" jdbcType="DATE"/>
+        <result column="next_trd" property="nextTrade" jdbcType="DATE"/>
+        <result column="is_week_end" property="isWeekEnd" jdbcType="TINYINT"/>
+        <result column="is_month_end" property="isMonthEnd" jdbcType="TINYINT"/>
+        <result column="is_year_end" property="isYearEnd" jdbcType="TINYINT"/>
+        <result column="last_week_trd" property="lastWeekTrade" jdbcType="DATE"/>
+        <result column="last_month_trd" property="lastMonthTrade" jdbcType="DATE"/>
+        <result column="last_year_trd" property="lastYearTrade" jdbcType="DATE"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="ext_time" property="externalTime" jdbcType="TIMESTAMP"/>
+        <result column="remark" property="remark" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="findByNormalDateAndRegionCode" resultMap="BaseResultMap">
+        SELECT
+            `calendar_id`,
+            `normal_date`,
+            `region_code`,
+            `is_trade_day`,
+            `last_trd`,
+            `next_trd`,
+            `is_week_end`,
+            `is_month_end`,
+            `is_year_end`,
+            `last_week_trd`,
+            `last_month_trd`,
+            `last_year_trd`,
+            `create_time`,
+            `update_time`,
+            `ext_time`,
+            `remark`
+        FROM stk_trd_cale
+        WHERE normal_date= #{normalDate} AND region_code =#{regionCode}
+    </select>
+
+    <select id="findByYearAndMonth" resultMap="BaseResultMap">
+        SELECT
+            `calendar_id`,
+            `normal_date`,
+            `region_code`,
+            `is_trade_day`,
+            `last_trd`,
+            `next_trd`,
+            `is_week_end`,
+            `is_month_end`,
+            `is_year_end`,
+            `last_week_trd`,
+            `last_month_trd`,
+            `last_year_trd`,
+            `create_time`,
+            `update_time`,
+            `ext_time`,
+            `remark`
+        FROM
+            stk_trd_cale
+        WHERE
+          year(normal_date)=#{year}
+          AND month(normal_date)=#{month}
+          AND region_code= #{regionCode}
+    </select>
+</mapper>

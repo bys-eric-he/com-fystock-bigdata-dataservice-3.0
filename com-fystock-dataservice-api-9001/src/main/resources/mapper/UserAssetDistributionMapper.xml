@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fystock.bigdata.cloud.mapper.UserAssetDistributionMapper">
+    <resultMap id="BaseResultMap" type="com.fystock.bigdata.cloud.entity.mysql.UserAssetDistributionInfo">
+        <result column="asset_scale" property="assetScale" jdbcType="TINYINT"/>
+        <result column="user_count" property="userCount" jdbcType="BIGINT"/>
+        <result column="import_datetime" property="importDateTime" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="findAllUserAssetDistributionInfo" resultMap="BaseResultMap">
+        SELECT asset_scale,
+               user_count,
+               import_datetime
+        FROM user_asset_distribution
+        WHERE import_datetime = (
+            SELECT max(import_datetime)
+            FROM user_asset_distribution
+        )
+    </select>
+
+    <select id="findAllUserAssetDistributionInfoByImportDateTime" parameterType="string" resultMap="BaseResultMap">
+        SELECT asset_scale,
+               user_count,
+               import_datetime
+        FROM user_asset_distribution
+        WHERE import_datetime = #{importDateTime}
+    </select>
+</mapper>

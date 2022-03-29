@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fystock.bigdata.cloud.mapper.CityCountRatioUserInfoMapper">
+    <resultMap id="BaseResultMap" type="com.fystock.bigdata.cloud.entity.mysql.CityCountRatioUserInfo">
+        <result column="city" property="city" jdbcType="VARCHAR"/>
+        <result column="last_city_id" property="lastCityId" jdbcType="VARCHAR"/>
+        <result column="total_user_count" property="totalUserCount" jdbcType="INTEGER"/>
+        <result column="city_user_count" property="cityUserCount" jdbcType="INTEGER"/>
+        <result column="ratio" property="ratio" jdbcType="DECIMAL"/>
+        <result column="import_datetime" property="importDateTime" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="findAllCityCountRatioUser" resultMap="BaseResultMap">
+        SELECT
+            city,
+            import_datetime,
+            city_user_count,
+            last_city_id,
+            ratio,
+            total_user_count
+        FROM
+            city_count_ratio_user_info
+        WHERE
+                import_datetime = (
+                SELECT
+                    max(import_datetime)
+                FROM
+                    city_count_ratio_user_info
+            )
+    </select>
+    <select id="findAllByImportDateTime" parameterType="string" resultMap="BaseResultMap">
+        SELECT
+            city,
+            import_datetime,
+            city_user_count,
+            last_city_id,
+            ratio,
+            total_user_count
+        FROM
+            city_count_ratio_user_info
+        WHERE
+            import_datetime = #{importDateTime}
+    </select>
+</mapper>

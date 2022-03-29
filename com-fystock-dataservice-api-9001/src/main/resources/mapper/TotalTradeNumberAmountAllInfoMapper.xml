@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fystock.bigdata.cloud.mapper.TotalTradeNumberAmountAllInfoMapper">
+    <resultMap id="BaseResultMap" type="com.fystock.bigdata.cloud.entity.mysql.TotalTradeNumberAmountAllInfo">
+        <result column="money_type" property="moneyType" jdbcType="VARCHAR"/>
+        <result column="trade_kind" property="tradeKind" jdbcType="VARCHAR"/>
+        <result column="count" property="count" jdbcType="BIGINT"/>
+        <result column="balance" property="balance" jdbcType="DECIMAL"/>
+        <result column="import_datetime" property="importDateTime" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="findAllTotalTradeNumberAmountAllInfo" resultMap="BaseResultMap">
+        SELECT
+            money_type,
+            trade_kind,
+            import_datetime,
+            balance,
+            count
+        FROM
+            total_trade_number_and_amount
+        WHERE
+            import_datetime = (
+            SELECT
+                max(import_datetime)
+            FROM
+                total_trade_number_and_amount
+        )
+    </select>
+    <select id="findAllTotalTradeNumberAmountAllInfoByImportDateTime" parameterType="string" resultMap="BaseResultMap">
+        SELECT
+            money_type,
+            trade_kind,
+            import_datetime,
+            balance,
+            count
+        FROM
+            total_trade_number_and_amount
+        WHERE
+            import_datetime = #{importDateTime}
+    </select>
+</mapper>

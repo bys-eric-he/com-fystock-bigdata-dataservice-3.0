@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fystock.bigdata.cloud.mapper.msyql.CapitalInfoMapper">
+    <resultMap id="BaseResultMap" type="com.fystock.bigdata.cloud.entity.mysql.CapitalInfo">
+        <result column="id" property="id" jdbcType="INTEGER"/>
+        <result column="symbol" property="symbol" jdbcType="VARCHAR"/>
+        <result column="map_stk_code" property="mapStkCode" jdbcType="VARCHAR"/>
+        <result column="total_capital" property="totalCapital" jdbcType="DECIMAL"/>
+        <result column="flow_capital" property="flowCapital" jdbcType="DECIMAL"/>
+        <result column="create_time" property="createTime" jdbcType="DATE"/>
+        <result column="modify_time" property="modifyTime" jdbcType="DATE"/>
+    </resultMap>
+
+    <select id="getAllCapitalInfoSourceList" resultMap="BaseResultMap">
+        SELECT symbol,
+               total_capital,
+               flow_capital,
+               create_time,
+               modify_time
+        FROM hk_stk_capital;
+    </select>
+
+    <update id="truncateCapitalInfoTable">
+        TRUNCATE TABLE hk_stk_capital
+    </update>
+
+    <insert id="insertCapitalInfoBatch" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO hk_stk_capital
+        (symbol, total_capital, flow_capital,create_time,modify_time)
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            #{item.symbol},
+            #{item.totalCapital},
+            #{item.flowCapital},
+            #{item.createTime},
+            #{item.modifyTime}
+            )
+        </foreach>
+    </insert>
+</mapper>

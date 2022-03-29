@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fystock.bigdata.cloud.mapper.TotalTradeNumberAmountInfoMapper">
+    <resultMap id="BaseResultMap" type="com.fystock.bigdata.cloud.entity.mysql.TotalTradeNumberAmountInfo">
+        <result column="money_type" property="moneyType" jdbcType="VARCHAR"/>
+        <result column="trade_date" property="tradeDate" jdbcType="VARCHAR"/>
+        <result column="trade_kind" property="tradeKind" jdbcType="VARCHAR"/>
+        <result column="day_count" property="dayCount" jdbcType="BIGINT"/>
+        <result column="day_balance" property="dayBalance" jdbcType="DECIMAL"/>
+        <result column="import_datetime" property="importDateTime" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="findAllTotalTradeNumberAmountInfo" resultMap="BaseResultMap">
+        SELECT
+            money_type,
+            trade_date,
+            trade_kind,
+            import_datetime,
+            day_balance,
+            day_count
+        FROM
+            total_trade_number_and_amount_of_client_trade_flow_info
+        WHERE
+                import_datetime=(
+                SELECT
+                    max(import_datetime)
+                FROM
+                    total_trade_number_and_amount_of_client_trade_flow_info
+            )
+    </select>
+    <select id="findAllTotalTradeNumberAmountInfoByImportDateTime" parameterType="string" resultMap="BaseResultMap">
+        SELECT
+            money_type,
+            trade_date,
+            trade_kind,
+            import_datetime,
+            day_balance,
+            day_count
+        FROM
+            total_trade_number_and_amount_of_client_trade_flow_info
+        WHERE
+            import_datetime = #{importDateTime}
+    </select>
+</mapper>

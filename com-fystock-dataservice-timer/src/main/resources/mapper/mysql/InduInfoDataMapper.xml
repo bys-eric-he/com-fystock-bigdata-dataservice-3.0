@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fystock.bigdata.cloud.mapper.msyql.InduInfoDataMapper">
+    <resultMap id="BaseResultMap" type="com.fystock.bigdata.cloud.entity.mysql.InduDataInfo">
+        <result column="indu_id" property="induId" jdbcType="INTEGER"/>
+        <result column="corp_code" property="corpCode" jdbcType="VARCHAR"/>
+        <result column="change_date" property="changeDate" jdbcType="DATE"/>
+        <result column="indu_sys_mark" property="induSysMark" jdbcType="INTEGER"/>
+        <result column="indu_sys_name" property="induSysName" jdbcType="VARCHAR"/>
+
+        <result column="indu_code_a" property="induCodeA" jdbcType="VARCHAR"/>
+        <result column="indu_name_a" property="induNameA" jdbcType="VARCHAR"/>
+        <result column="indu_code_b" property="induCodeB" jdbcType="VARCHAR"/>
+        <result column="indu_name_b" property="induNameB" jdbcType="VARCHAR"/>
+        <result column="indu_code_c" property="induCodeC" jdbcType="VARCHAR"/>
+        <result column="indu_name_c" property="induNameC" jdbcType="VARCHAR"/>
+        <result column="indu_code_d" property="induCodeD" jdbcType="VARCHAR"/>
+        <result column="indu_name_d" property="induNameD" jdbcType="VARCHAR"/>
+
+        <result column="create_time" property="createTime" jdbcType="DATE"/>
+        <result column="update_time" property="updateTime" jdbcType="DATE"/>
+        <result column="ext_time" property="extTime" jdbcType="DATE"/>
+
+        <result column="is_status" property="isStatus" jdbcType="BOOLEAN"/>
+        <result column="is_Faucet" property="isFaucet" jdbcType="BOOLEAN"/>
+    </resultMap>
+
+    <select id="getAllInduInfoDataList" resultMap="BaseResultMap">
+        SELECT
+            indu_id,
+            corp_code,
+            change_date,
+            indu_sys_mark,
+            indu_sys_name,
+            indu_code_a,
+            indu_name_a ,
+            indu_code_b,
+            indu_name_b,
+            indu_code_c,
+            indu_name_c,
+            indu_code_d,
+            indu_name_d,
+            create_time,
+            update_time,
+            ext_time,
+            is_status,
+            is_Faucet
+        FROM  stk_indu_info
+        WHERE indu_sys_mark= #{induSystemMark}
+    </select>
+
+    <insert id="insertBatchInduInfoDataList" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="induId">
+        INSERT INTO stk_indu_info
+        (
+            corp_code,
+            change_date,
+            indu_sys_mark,
+            indu_sys_name,
+            indu_code_a,
+            indu_name_a ,
+            indu_code_b,
+            indu_name_b,
+            indu_code_c,
+            indu_name_c,
+            indu_code_d,
+            indu_name_d,
+            create_time,
+            update_time,
+            ext_time,
+            is_status,
+            is_Faucet
+        )
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            #{item.corpCode,jdbcType=VARCHAR},
+            #{item.changeDate,jdbcType=DATE},
+            #{item.induSysMark,jdbcType=INTEGER},
+            #{item.induSysName,jdbcType=VARCHAR},
+            #{item.induCodeA,jdbcType=VARCHAR},
+            #{item.induNameA,jdbcType=VARCHAR},
+            #{item.induCodeB,jdbcType=VARCHAR},
+            #{item.induNameB,jdbcType=VARCHAR},
+            #{item.induCodeC,jdbcType=VARCHAR},
+            #{item.induNameC,jdbcType=VARCHAR},
+            #{item.induCodeD,jdbcType=VARCHAR},
+            #{item.induCodeD,jdbcType=VARCHAR},
+
+            #{item.createTime,jdbcType=DATE},
+            #{item.updateTime,jdbcType=DATE},
+            #{item.extTime,jdbcType=DATE},
+
+            #{item.isStatus,jdbcType=BOOLEAN},
+            #{item.isFaucet,jdbcType=BOOLEAN}
+            )
+        </foreach>
+    </insert>
+
+    <delete id="deleteBatchInduInfoDataByIds" parameterType="Integer">
+        DELETE FROM stk_indu_info
+        WHERE indu_id IN
+        <foreach collection="list" item="induId" open="(" separator="," close=")">
+            #{induId}
+        </foreach>
+    </delete>
+
+</mapper>

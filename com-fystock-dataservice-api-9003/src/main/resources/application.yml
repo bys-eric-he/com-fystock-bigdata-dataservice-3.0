@@ -1,0 +1,40 @@
+server:
+  port: 9003
+
+spring:
+  main:
+    allow-bean-definition-overriding: true #当遇到同样名字的时候，是否允许覆盖注册
+  application:
+    name: BIGDATA-MARKET-PROVIDER
+  profiles:
+    active: tes
+
+secure:
+  ignored:
+    urls: #安全路径白名单
+      - /ignore/**
+      - /api/v1/auth/login/**
+      - /api/v1/auth/logout/**
+      - /api/v1/auth/register/**
+      - /api/v1/auth/refresh/**
+      - /**/druid/**
+      - /**/actuator/**
+      - /home/**
+      - /**/home/**
+    resources:
+      - /
+      - /static/**
+      - /img/**
+      - /swagger-ui.html
+      - /doc.html
+      - /login.html
+      - /webjars/**
+      - /swagger-resources/**
+      - /**/v2/api-docs
+      - /**/*.js
+      - /**/*.css
+      - /**/*.png
+      - /**/*.ico
+      - /**/*.html
+      - /favicon.ico
+      - /webjars/springfox-swagger-ui/**

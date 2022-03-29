@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fystock.bigdata.cloud.mapper.RiskWarnInfoMapper">
+    <resultMap id="BaseResultMap" type="com.fystock.bigdata.cloud.entity.mysql.RiskWarnInfo">
+        <result column="project_id" property="projectId" jdbcType="INTEGER"/>
+        <result column="client_id" property="clientId" jdbcType="VARCHAR"/>
+        <result column="count" property="count" jdbcType="INTEGER"/>
+        <result column="risk_datetime" property="riskDateTime" jdbcType="VARCHAR"/>
+        <result column="import_datetime" property="importDateTime" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="getAllLatestInfo" resultMap="BaseResultMap">
+        SELECT
+            client_id,
+            project_id,
+            risk_datetime,
+            `count`,
+            import_datetime
+        FROM
+            risk_warning_info
+        WHERE
+            import_datetime =(
+                SELECT
+                    MAX(import_datetime)
+                FROM
+                    risk_warning_info
+                )
+        ORDER BY
+            project_id ASC ;
+    </select>
+
+    <select id="getAllLatestInfoByPId" parameterType="Integer" resultMap="BaseResultMap">
+        SELECT
+            client_id,
+            project_id,
+            risk_datetime,
+            `count`,
+            import_datetime
+        FROM
+            risk_warning_info
+        WHERE
+                import_datetime =(
+                SELECT
+                    MAX(import_datetime)
+                FROM
+                    risk_warning_info
+            )
+        AND project_id in
+            <foreach collection="items" item="item" index="index" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        ORDER BY
+            project_id ASC ;
+    </select>
+
+    <select id="getAllByImportDateTime" parameterType="string" resultMap="BaseResultMap">
+        SELECT
+            client_id,
+            project_id,
+            risk_datetime,
+            `count`,
+            import_datetime
+        FROM
+            risk_warning_info
+        WHERE
+            import_datetime = #{importDateTime}
+    </select>
+
+    <select id="getAllByImportDateTimeAndPId" resultMap="BaseResultMap">
+        SELECT
+            client_id,
+            project_id,
+            risk_datetime,
+            `count`,
+            import_datetime
+        FROM
+            risk_warning_info
+        WHERE
+            import_datetime = #{importDateTime}
+        AND project_id in
+        <foreach collection="items" item="item" index="index" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+        ORDER BY
+            project_id ASC ;
+    </select>
+</mapper>

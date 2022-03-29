@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fystock.bigdata.cloud.mapper.msyql.AssetInfoMapper">
+    <resultMap id="BaseResultMap" type="com.fystock.bigdata.cloud.entity.mysql.AssetInfo">
+        <result column="asset_id" property="assetId" jdbcType="VARCHAR"/>
+        <result column="stk_code" property="stkCode" jdbcType="VARCHAR"/>
+        <result column="map_stk_code" property="mapStkCode" jdbcType="VARCHAR"/>
+        <result column="mkt_code" property="mktCode" jdbcType="VARCHAR"/>
+        <result column="sec_type" property="secType" jdbcType="INTEGER"/>
+        <result column="sec_stype" property="secStype" jdbcType="INTEGER"/>
+        <result column="corp_id" property="corpId" jdbcType="INTEGER"/>
+        <result column="stk_name" property="stkName" jdbcType="VARCHAR"/>
+        <result column="stk_name_long" property="stkNameLong" jdbcType="VARCHAR"/>
+        <result column="stk_traditional_name" property="stkTraditionalName" jdbcType="VARCHAR"/>
+        <result column="stk_traditional_name_long" property="stkTraditionalNameLong" jdbcType="VARCHAR"/>
+        <result column="spelling_abbr" property="spellingAbbr" jdbcType="VARCHAR"/>
+        <result column="spelling" property="spelling" jdbcType="VARCHAR"/>
+        <result column="eng_name" property="engName" jdbcType="VARCHAR"/>
+        <result column="board_code" property="boardCode" jdbcType="INTEGER"/>
+        <result column="lot_size" property="lotSize" jdbcType="INTEGER"/>
+        <result column="change_limit" property="changeLimit" jdbcType="DECIMAL"/>
+        <result column="listing_date" property="listingDate" jdbcType="DATE"/>
+        <result column="delist_date" property="delistDate" jdbcType="DATE"/>
+        <result column="ccy_type" property="ccyType" jdbcType="VARCHAR"/>
+        <result column="version" property="version" jdbcType="INTEGER"/>
+        <result column="add_version" property="addVersion" jdbcType="INTEGER"/>
+        <result column="is_invest" property="isInvest" jdbcType="BOOLEAN"/>
+        <result column="is_simu_invest" property="isSimuInvest" jdbcType="BOOLEAN"/>
+        <result column="create_time" property="createTime" jdbcType="DATE"/>
+        <result column="update_time" property="updateTime" jdbcType="DATE"/>
+        <result column="ext_time" property="extTime" jdbcType="DATE"/>
+        <result column="is_status" property="isStatus" jdbcType="BOOLEAN"/>
+        <result column="is_confirm" property="isConfirm" jdbcType="BOOLEAN"/>
+        <result column="is_revise" property="isRevise" jdbcType="BOOLEAN"/>
+        <result column="issue_price" property="issuePrice" jdbcType="DECIMAL"/>
+        <result column="exchange" property="exchange" jdbcType="VARCHAR"/>
+        <result column="stk_name_iscover" property="stkNameIsCover" jdbcType="BOOLEAN"/>
+        <result column="spelling_short" property="spellingShort" jdbcType="VARCHAR"/>
+        <result column="spread_table_code" property="spreadTableCode" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="getAllAssetInfoSourceList" resultMap="BaseResultMap">
+        SELECT asset_id,
+               stk_code,
+               map_stk_code,
+               mkt_code,
+               sec_type,
+               sec_stype,
+               corp_id,
+               stk_name,
+               stk_name_long,
+               stk_traditional_name,
+               stk_traditional_name_long,
+               spelling_abbr,
+               spelling,
+               eng_name,
+               board_code,
+               lot_size,
+               change_limit,
+               listing_date,
+               delist_date,
+               ccy_type,
+               version,
+               add_version,
+               is_invest,
+               is_simu_invest,
+               create_time,
+               update_time,
+               ext_time,
+               is_status,
+               is_confirm,
+               is_revise,
+               issue_price,
+               exchange,
+               stk_name_iscover,
+               spelling_short,
+               spread_table_code
+        FROM asset_info
+
+    </select>
+
+    <update id="truncateAssetInfoTable">
+        TRUNCATE TABLE asset_info
+    </update>
+
+    <insert id="insertAssetInfoBatch" parameterType="java.util.List">
+        INSERT INTO asset_info
+        (asset_id,
+        stk_code,
+        map_stk_code,
+        mkt_code,
+        sec_type,
+        sec_stype,
+        corp_id,
+        stk_name,
+        stk_name_long,
+        stk_traditional_name,
+        stk_traditional_name_long,
+        spelling_abbr,
+        spelling,
+        eng_name,
+        board_code,
+        lot_size,
+        change_limit,
+        listing_date,
+        delist_date,
+        ccy_type,
+        version,
+        add_version,
+        is_invest,
+        is_simu_invest,
+        create_time,
+        update_time,
+        ext_time,
+        is_status,
+        is_confirm,
+        is_revise,
+        issue_price,
+        exchange,
+        stk_name_iscover,
+        spelling_short,
+        spread_table_code)
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            #{item.assetId},
+            #{item.stkCode},
+            #{item.mapStkCode},
+            #{item.mktCode},
+            #{item.secType},
+            #{item.secStype},
+            #{item.corpId},
+            #{item.stkName},
+            #{item.stkNameLong},
+            #{item.stkTraditionalName},
+            #{item.stkTraditionalNameLong},
+            #{item.spellingAbbr},
+            #{item.spelling},
+            #{item.engName},
+            #{item.boardCode},
+            #{item.lotSize},
+            #{item.changeLimit},
+            #{item.listingDate},
+            #{item.delistDate},
+            #{item.ccyType},
+            #{item.version},
+            #{item.addVersion},
+            #{item.isInvest},
+            #{item.isSimuInvest},
+            #{item.createTime},
+            #{item.updateTime},
+            #{item.extTime},
+            #{item.isStatus},
+            #{item.isConfirm},
+            #{item.isRevise},
+            #{item.issuePrice},
+            #{item.exchange},
+            #{item.stkNameIsCover},
+            #{item.spellingShort},
+            #{item.spreadTableCode}
+            )
+        </foreach>
+    </insert>
+
+</mapper>

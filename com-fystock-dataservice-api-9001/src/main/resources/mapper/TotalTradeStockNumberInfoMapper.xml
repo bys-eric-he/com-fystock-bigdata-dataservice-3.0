@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fystock.bigdata.cloud.mapper.TotalTradeStockNumberInfoMapper">
+    <resultMap id="BaseResultMap" type="com.fystock.bigdata.cloud.entity.mysql.TotalTradeStockNumberInfo">
+        <result column="stock_code" property="stockCode" jdbcType="VARCHAR"/>
+        <result column="stock_name" property="stockName" jdbcType="VARCHAR"/>
+        <result column="trade_date" property="tradeDate" jdbcType="VARCHAR"/>
+        <result column="trade_kind" property="tradeKind" jdbcType="VARCHAR"/>
+        <result column="day_times" property="dayTimes" jdbcType="INTEGER"/>
+        <result column="exchange_type" property="exchangeType" jdbcType="VARCHAR"/>
+        <result column="import_datetime" property="importDateTime" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="findAllByTradeDateMax" resultMap="BaseResultMap">
+        SELECT
+            exchange_type,
+            stock_code,
+            trade_date,
+            trade_kind,
+            stock_name,
+            import_datetime,
+            day_times
+        FROM
+            total_trade_stock_number_of_client_trade_flow_info
+        WHERE
+            import_datetime=(
+                SELECT
+                    MAX(import_datetime)
+                FROM
+                    total_trade_stock_number_of_client_trade_flow_info
+            )
+        AND trade_date= #{tradeDate}
+    </select>
+
+    <select id="findAllByTradeDate" parameterType="string" resultMap="BaseResultMap">
+        SELECT
+            exchange_type,
+            stock_code,
+            trade_date,
+            trade_kind,
+            stock_name,
+            import_datetime,
+            day_times
+        FROM
+            total_trade_stock_number_of_client_trade_flow_info
+        WHERE
+            trade_date= #{tradeDate}
+    </select>
+
+    <select id="findAllByImportDateTimeAndTradeDate" parameterType="string" resultMap="BaseResultMap">
+        SELECT
+            exchange_type,
+            stock_code,
+            trade_date,
+            trade_kind,
+            stock_name,
+            import_datetime,
+            day_times
+        FROM
+            total_trade_stock_number_of_client_trade_flow_info
+        WHERE
+            import_datetime = #{importDateTime}
+        AND trade_date= #{tradeDate}
+    </select>
+
+</mapper>

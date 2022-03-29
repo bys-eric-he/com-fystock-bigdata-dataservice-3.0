@@ -1,0 +1,7 @@
+server:
+  port: 3344
+spring:
+  application:
+    name: BIGDATA-GATEWAY
+  profiles:
+    active: tes

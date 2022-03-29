@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.fystock.bigdata.cloud.mapper.CcassHoldingsInfoMapper">
+
+    <resultMap type="com.fystock.bigdata.cloud.entity.clickhouse.CcassHoldingsInfo"
+               id="CcassHoldingsInfoMap">
+        <result property="participantId" jdbcType="VARCHAR" column="participant_id"/>
+        <result property="participantName" jdbcType="VARCHAR" column="participant_name"/>
+        <result property="stockCode" jdbcType="VARCHAR" column="stock_code"/>
+        <result property="stockNameEn" jdbcType="VARCHAR" column="stock_name_en"/>
+        <result property="stockHolding" jdbcType="DECIMAL" column="stock_holding"/>
+        <result property="stockValue" jdbcType="DECIMAL" column="stock_value"/>
+        <result property="stakePercentage" jdbcType="VARCHAR" column="stake_percentage"/>
+        <result property="holdDate" jdbcType="VARCHAR" column="hold_date"/>
+        <result property="totalCapital" jdbcType="DECIMAL" column="total_capital"/>
+        <result property="updateDate" jdbcType="VARCHAR" column="update_date"/>
+        <result property="createTime" jdbcType="VARCHAR" column="create_time"/>
+        <result property="updateTime" jdbcType="VARCHAR" column="update_time"/>
+    </resultMap>
+
+    <resultMap type="com.fystock.bigdata.cloud.model.CcassHoldingsRatioInfo"
+               id="CcassHoldingsRatioInfoMap">
+        <result property="stockCode" jdbcType="VARCHAR" column="stock_code"/>
+        <result property="stockNameEn" jdbcType="VARCHAR" column="stock_name_en"/>
+        <result property="stockHolding" jdbcType="DECIMAL" column="stock_holding"/>
+        <result property="stockValue" jdbcType="DECIMAL" column="stock_value"/>
+        <result property="stakePercentage" jdbcType="VARCHAR" column="stake_percentage"/>
+        <result property="holdDate" jdbcType="VARCHAR" column="hold_date"/>
+        <result property="totalCapital" jdbcType="DECIMAL" column="total_capital"/>
+        <result property="holdingRatio" jdbcType="DECIMAL" column="holding_ratio"/>
+        <result property="updateDate" jdbcType="VARCHAR" column="update_date"/>
+        <result property="createTime" jdbcType="VARCHAR" column="create_time"/>
+    </resultMap>
+
+    <select id="getCcassHoldingsInfo" parameterType="java.lang.String"
+            resultMap="CcassHoldingsInfoMap">
+        SELECT
+            `participant_id`,
+            `participant_name`,
+            `stock_code`,
+            `stock_name_en`,
+            `stock_holding`,
+            `stock_value`,
+            `stake_percentage`,
+            `hold_date`,
+            `total_capital`,
+            `update_date`,
+            `create_time`,
+            `update_time`
+        FROM DWS_BIGSCREEN_DATA.CCASS_HOLDINGS_DATA
+        WHERE update_date = #{updateDate,jdbcType=VARCHAR}
+        AND stock_code = #{stockCode,jdbcType=VARCHAR}
+    </select>
+
+    <select id="getCcassHoldingsInfoList" parameterType="java.lang.String"
+            resultMap="CcassHoldingsInfoMap">
+        SELECT
+            `participant_id`,
+            `participant_name`,
+            `stock_code`,
+            `stock_name_en`,
+            `stock_holding`,
+            `stock_value`,
+            `stake_percentage`,
+            `hold_date`,
+            `total_capital`,
+            `update_date`,
+            `create_time`,
+            `update_time`
+        FROM DWS_BIGSCREEN_DATA.CCASS_HOLDINGS_DATA
+        WHERE update_date = #{updateDate,jdbcType=VARCHAR}
+    </select>
+
+    <select id="getCcassHoldingsRatioInfoList" parameterType="java.lang.String"
+            resultMap="CcassHoldingsRatioInfoMap">
+        SELECT
+            stock_code ,
+            stock_name_en ,
+            stock_holding ,
+            stock_value ,
+            total_capital ,
+            divide(toDecimal128(stock_holding, 7) , toDecimal128(total_capital, 7)) as holding_ratio,
+            stake_percentage ,
+            hold_date ,
+            update_date ,
+            create_time
+        FROM
+            CCASS_HOLDINGS_DATA chd
+        WHERE chd.update_date = #{updateDate,jdbcType=VARCHAR} AND chd.total_capital != '0'
+    </select>
+
+    <insert id="insertCcassHoldingsInfos"
+            parameterType="com.fystock.bigdata.cloud.entity.clickhouse.CcassHoldingsInfo">
+        INSERT
+        INTO DWS_BIGSCREEN_DATA.CCASS_HOLDINGS_DATA(
+            `participant_id`,
+            `participant_name`,
+            `stock_code`,
+            `stock_name_en`,
+            `stock_holding`,
+            `stock_value`,
+            `stake_percentage`,
+            `hold_date`,
+            `total_capital`,
+            `update_date`,
+            `create_time`,
+            `update_time`
+        )VALUES
+        <foreach collection="ccassHoldingsInfos" item="item" index="i" separator=",">
+            (#{item.participantId,jdbcType=INTEGER},
+            #{item.participantName,jdbcType=VARCHAR},
+            #{item.stockCode,jdbcType=VARCHAR},
+            #{item.stockNameEn,jdbcType=VARCHAR},
+            #{item.stockHolding,jdbcType=DECIMAL},
+            #{item.stockValue,jdbcType=DECIMAL},
+            #{item.stakePercentage,jdbcType=VARCHAR},
+            #{item.holdDate,jdbcType=VARCHAR},
+            #{item.totalCapital,jdbcType=DECIMAL},
+            #{item.updateDate,jdbcType=VARCHAR},
+            #{item.createTime,jdbcType=VARCHAR},
+            #{item.updateTime,jdbcType=VARCHAR})
+        </foreach>
+    </insert>
+
+    <insert id="insertCcassHoldingsRatioInfos"
+            parameterType="com.fystock.bigdata.cloud.model.CcassHoldingsRatioInfo">
+        INSERT
+        INTO dbtest.ccass_holdings_ratio_info(
+            `stock_code`,
+            `stock_name_en`,
+            `stock_holding`,
+            `stock_value`,
+            `stake_percentage`,
+            `hold_date`,
+            `holding_ratio`,
+            `total_capital`,
+            `update_date`,
+            `create_time`
+        )VALUES
+        <foreach collection="ccassHoldingsRatioInfos" item="item" index="i" separator=",">
+            (#{item.stockCode,jdbcType=VARCHAR},
+            #{item.stockNameEn,jdbcType=VARCHAR},
+            #{item.stockHolding,jdbcType=DECIMAL},
+            #{item.stockValue,jdbcType=DECIMAL},
+            #{item.stakePercentage,jdbcType=VARCHAR},
+            #{item.holdDate,jdbcType=VARCHAR},
+            #{item.holdingRatio,jdbcType=DECIMAL},
+            #{item.totalCapital,jdbcType=DECIMAL},
+            #{item.updateDate,jdbcType=VARCHAR},
+            #{item.createTime,jdbcType=VARCHAR})
+        </foreach>
+    </insert>
+</mapper>

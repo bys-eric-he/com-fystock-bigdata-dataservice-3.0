@@ -1,0 +1,62 @@
+spring:
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 10.2.13.6:8848
+        namespace: 66781c6a-d2a8-479a-86c1-db4e43b3dee7
+      config:
+        server-addr: 10.2.13.6:8848
+        file-extension: yaml
+        namespace: 66781c6a-d2a8-479a-86c1-db4e43b3dee7
+        extension-configs:
+          - data-id: bigdata-gateway.yaml
+            group: DEV_GROUP
+            refresh: true
+    sentinel:
+      transport:
+        dashboard: 10.2.13.6:7788
+        port: 8725
+        heartbeat-interval-ms: 1000
+      eager: true
+    loadbalancer:
+      retry:
+        enabled: true
+    gateway:
+      discovery:
+        locator:
+          enabled: true  #开启注册中心路由功能
+      globalcors: # 配置允许跨域(网关这里配置了以后,下层服务就不需要配置了,否则会配置冲突导致无法跨域)
+        corsConfigurations:
+          '[/**]':
+            allowCredentials: true
+            allowedOriginPatterns: "*"
+            allowedHeaders: "*"
+            allowedMethods: "*"
+            maxAge: 3600
+        add-to-simple-url-handler-mapping: true
+      routes:
+        #离线计算大数据服务 API服务路由
+        - id: api_bigdata_route
+          uri: lb://BIGDATA-DASHBOARD-PROVIDER-A
+          predicates:
+            - Path=/api/bigdata/v1/**
+        # 实时计算大数据服务 API服务路由
+        - id: api_dataservice_route
+          uri: lb://BIGDATA-DATASERVICE-PROVIDER
+          predicates:
+            - Path=/api/dataservice/v1/**
+        # 行情数据 API服务路由
+        - id: api_market_route
+          uri: lb://BIGDATA-MARKET-PROVIDER
+          predicates:
+            - Path=/api/market/v1/**
+        # 认证服务路由
+        - id: auth_route
+          uri: lb://BIGDATA-AUTH-SERVICE
+          predicates:
+            - Path=/oauth/**,/api/user/v1/**,/api/token/v1/**
+        # 在线计算大数据服务 API服务路由
+        - id: dashboard_route
+          uri: lb://BIGDATA-DASHBOARD-PROVIDER-B
+          predicates:
+            - Path=/api/dashboard/v1/**

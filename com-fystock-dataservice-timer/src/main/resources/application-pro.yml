@@ -1,0 +1,90 @@
+spring:
+  datasource:
+    bigdatamarketmysql:
+      url: jdbc:mysql://10.2.13.6:3306/HK_MARKET_DATA?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8
+      type: com.alibaba.druid.pool.DruidDataSource
+      driverClassName: com.mysql.jdbc.Driver
+      username: root
+      password: root
+    f10sqlserver:
+      url: jdbc:sqlserver://10.2.11.12:21496;DatabaseName=F10
+      type: com.alibaba.druid.pool.DruidDataSource
+      driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
+      username: f10Reader
+      password: 9FstockF10
+    sunlinef10mysql:
+      url: jdbc:mysql://183.47.54.164:13307/f10?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8
+      type: com.alibaba.druid.pool.DruidDataSource
+      driverClassName: com.mysql.jdbc.Driver
+      username: 9f_select
+      password: 9fstocks
+    sunlinemktinfomysql:
+      url: jdbc:mysql://183.47.54.164:13307/mktinfo?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8
+      type: com.alibaba.druid.pool.DruidDataSource
+      driverClassName: com.mysql.jdbc.Driver
+      username: 9f_select
+      password: 9fstocks
+    cubpmysql:
+      url: jdbc:mysql://10.2.12.61:3307/cubp?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8
+      type: com.alibaba.druid.pool.DruidDataSource
+      driverClassName: com.mysql.jdbc.Driver
+      username: dtuser1
+      password: 9fstock@2021
+  cache:
+    type: redis
+  redis:
+    #host: 10.2.13.6 #sentinel模式下不用配
+    #port: 5001 #sentinel模式下不用配
+    timeout: 10000
+    database: 0
+    lettuce:
+      pool:
+        max-active: 8
+        max-wait: -1
+        max-idle: 8
+        min-idle: 0
+    sentinel:
+      master: mymaster
+      nodes:
+        - 10.2.13.6:5008
+        - 10.2.13.6:5009
+        - 10.2.13.6:5010
+#xxl-job
+xxl:
+  job:
+    admin:
+      addresses: http://10.2.13.6:8889/xxl-job-admin
+    executor:
+      appname: bigData-Market-Job-PRO
+      address:
+      ip:
+      port: 9998
+      logpath: /data/xxl-job/jobhandler
+      logretentiondays: -1
+    accessToken: 202106021552
+
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+dubbo:
+  # 配置服务信息
+  application:
+    name: dubbo-consumer-timer
+    # 禁用QOS同一台机器可能会有端口冲突现象
+    qos-enable: false
+    qos-accept-foreign-ip: false
+  # 配置注册中心
+  registry:
+    address: nacos://10.2.13.6:8848
+    parameters:
+      namespace: f07e6fb1-df8c-4c70-a24e-ebdd06a55335
+  # 设置超时时间
+  consumer:
+    timeout: 4000
+
+hkex:
+  sell-short-data-url: https://www.hkex.com.hk/chi/stat/smstat/ssturnover/ncms/mshtmain_c.htm
+
+ccass:
+  holdings-url: https://webb-site.com/ccass/cholder.asp?part=$[]&d=$[]

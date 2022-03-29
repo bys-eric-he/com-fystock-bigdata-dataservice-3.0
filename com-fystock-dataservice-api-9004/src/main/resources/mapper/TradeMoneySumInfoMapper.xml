@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.fystock.bigdata.cloud.mapper.TradeMoneySumInfoMapper">
+
+    <resultMap type="com.fystock.bigdata.cloud.model.TradeMoneySumInfo" id="TradeMoneySumInfoMap">
+        <result property="date" jdbcType="VARCHAR" column="date"/>
+        <result property="time" jdbcType="VARCHAR" column="time"/>
+        <result property="tradeSum" jdbcType="DOUBLE" column="business_balance"/>
+    </resultMap>
+
+    <select id="getTradeMoneySumInfo" parameterType="java.lang.String" resultMap="TradeMoneySumInfoMap">
+        WITH addMinutes(r.date_time, 15) AS endDt
+        SELECT toDate(r.date_time)            AS `date`,
+               formatDateTime(endDt, '%H:%M') AS `time`,
+               r.business_balance
+        FROM (
+                 SELECT toStartOfFifteenMinutes(toDateTime(trade_time)) AS date_time,
+                        SUM(toDecimal64(business_balance, 8))           AS business_balance
+                 FROM DWS_BIGSCREEN_DATA.TRADE_JOIN_USER_AND_ASSET_TEST
+                 WHERE exchange_type = 'K'
+                   AND toDate(trade_time) = #{tradeDate,jdbcType=VARCHAR}
+                   AND is_grey = '0'
+                 GROUP BY date_time
+                 ORDER BY date_time ASC
+             ) AS r
+    </select>
+
+    <select id="getLastMonthTradeMoneySumInfo" parameterType="java.lang.String" resultMap="TradeMoneySumInfoMap">
+        SELECT r.`date`,
+               SUM(toDecimal64(r.business_balance, 8)) AS business_balance
+        FROM (
+                 SELECT toDate(trade_time) AS `date`,
+                        business_balance
+                 FROM DWS_BIGSCREEN_DATA.TRADE_JOIN_USER_AND_ASSET_TEST
+                 WHERE exchange_type = 'K'
+                   AND toDate(trade_time) &gt;= #{beginTradeDate,jdbcType=VARCHAR}
+                   AND toDate(trade_time) &lt;= #{endTradeDate,jdbcType=VARCHAR}
+                   AND is_grey = '0'
+             ) AS r
+        GROUP BY r.`date`
+        ORDER BY r.`date` ASC
+    </select>
+</mapper>

@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.fystock.bigdata.cloud.mapper.OrderClassOfProportionMapper">
+
+    <resultMap type="com.fystock.bigdata.cloud.model.TickerQuatInfo" id="TickerQuatInfoMap">
+        <result property="orderSize" jdbcType="INTEGER" column="order_size"/>
+        <result property="upValue" jdbcType="INTEGER" column="up_value"/>
+        <result property="assetId" jdbcType="INTEGER" column="asset_id"/>
+        <result property="stockCode" jdbcType="VARCHAR" column="stk_code"/>
+        <result property="stockName" jdbcType="VARCHAR" column="stk_name"/>
+        <result property="tickerType" jdbcType="INTEGER" column="ticker_type"/>
+        <result property="tickerTradePrice" jdbcType="DECIMAL" column="ticker_trade_price"/>
+        <result property="tickerTradeQty" jdbcType="INTEGER" column="ticker_trade_qty"/>
+        <result property="tickerIsUp" jdbcType="INTEGER" column="ticker_is_up"/>
+        <result property="tickerTradeTimestamp" jdbcType="VARCHAR" column="ticker_trade_timestmp"/>
+        <result property="tickerTradeDate" jdbcType="VARCHAR" column="ticker_trade_date"/>
+        <result property="tickerTradeTime" jdbcType="VARCHAR" column="ticker_trade_time"/>
+    </resultMap>
+
+    <resultMap type="com.fystock.bigdata.cloud.model.OrderSizeOfTotalSumAndCountInfo"
+               id="OrderSizeOfTotalSumAndCountInfoMap">
+        <result property="orderSize" jdbcType="INTEGER" column="order_size"/>
+        <result property="totalSum" jdbcType="DECIMAL" column="total_sum"/>
+        <result property="totalCount" jdbcType="INTEGER" column="total_count"/>
+    </resultMap>
+
+    <resultMap type="com.fystock.bigdata.cloud.model.UpOfTotalSumAndCountInfo"
+               id="UpOfTotalSumAndCountInfoMap">
+        <result property="upValue" jdbcType="INTEGER" column="up_value"/>
+        <result property="totalSum" jdbcType="DECIMAL" column="total_sum"/>
+        <result property="totalCount" jdbcType="DOUBLE" column="total_count"/>
+    </resultMap>
+
+    <select id="getTickerQuatInfo" parameterType="java.lang.String" resultMap="TickerQuatInfoMap">
+        SELECT (CASE
+                    WHEN ticker_trade_qty &lt; 20
+                        OR ticker_trade_qty * ticker_trade_price &lt; 20 * 10000 THEN -1
+                    WHEN ticker_trade_qty &gt; 500
+                        AND ticker_trade_qty * ticker_trade_price &lt; 100 * 10000 THEN 1
+                    ELSE 0
+            END)                                                   AS order_size,
+               IF(ticker_type = 0, IF(ticker_is_up = 0, 0, 1), -1) AS up_value,
+               asset_id,
+               stk_code,
+               stk_name,
+               ticker_type,
+               ticker_is_up,
+               ticker_trade_date,
+               ticker_trade_time,
+               ticker_trade_price,
+               ticker_trade_qty,
+               ticker_trade_timestmp
+        FROM DWS_BIGSCREEN_DATA.TICKER_QUAT_WIDE
+        WHERE ticker_trade_date &gt;= #{startTradeDate,jdbcType=VARCHAR}
+          AND ticker_trade_date &lt;= #{endTradeDate,jdbcType=VARCHAR}
+          AND stk_code = #{stockCode,jdbcType=VARCHAR}
+    </select>
+
+    <select id="getOrderSizeOfTotalSumAndCountInfo" parameterType="java.lang.String"
+            resultMap="OrderSizeOfTotalSumAndCountInfoMap">
+        SELECT r.order_size,
+               SUM(ticker_trade_qty * ticker_trade_price) AS total_sum,
+               SUM(ticker_trade_qty)                      AS total_count
+        FROM (
+                 SELECT (CASE
+                             WHEN ticker_trade_qty &lt; 20
+                                 OR ticker_trade_qty * ticker_trade_price &lt; 20 * 10000 THEN -1
+                             WHEN ticker_trade_qty &gt; 500
+                                 AND ticker_trade_qty * ticker_trade_price &lt; 100 * 10000 THEN 1
+                             ELSE 0
+                     END) AS order_size,
+                        asset_id,
+                        stk_code,
+                        stk_name,
+                        ticker_type,
+                        ticker_is_up,
+                        ticker_trade_date,
+                        ticker_trade_time,
+                        ticker_trade_price,
+                        ticker_trade_qty,
+                        ticker_trade_timestmp
+                 FROM DWS_BIGSCREEN_DATA.TICKER_QUAT_WIDE
+                 WHERE ticker_trade_date &gt;= #{startTradeDate,jdbcType=VARCHAR}
+                   AND ticker_trade_date &lt;= #{endTradeDate,jdbcType=VARCHAR}
+                   AND stk_code = #{stockCode,jdbcType=VARCHAR}) AS r
+        GROUP BY r.order_size
+    </select>
+
+    <select id="getUpOfTotalSumAndCountInfo" parameterType="java.lang.String"
+            resultMap="UpOfTotalSumAndCountInfoMap">
+        SELECT r.up_value,
+               IF(r.up_value = -1,
+                  SUM(ticker_trade_qty * ticker_trade_price / 2),
+                  SUM(ticker_trade_qty * ticker_trade_price)) AS total_sum,
+               IF(r.up_value = -1,
+                  SUM(ticker_trade_qty / 2),
+                  SUM(ticker_trade_qty / 2))                  AS total_count
+        FROM (
+                 SELECT IF(ticker_type = 0, IF(ticker_is_up = 0, 0, 1), -1) AS up_value,
+                        asset_id,
+                        stk_code,
+                        stk_name,
+                        ticker_type,
+                        ticker_is_up,
+                        ticker_trade_date,
+                        ticker_trade_time,
+                        ticker_trade_price,
+                        ticker_trade_qty,
+                        ticker_trade_timestmp
+                 FROM DWS_BIGSCREEN_DATA.TICKER_QUAT_WIDE
+                 WHERE ticker_trade_date &gt;= #{startTradeDate,jdbcType=VARCHAR}
+                   AND ticker_trade_date &lt;= #{endTradeDate,jdbcType=VARCHAR}
+                   AND stk_code = #{stockCode,jdbcType=VARCHAR}) AS r
+        GROUP BY r.up_value
+    </select>
+</mapper>

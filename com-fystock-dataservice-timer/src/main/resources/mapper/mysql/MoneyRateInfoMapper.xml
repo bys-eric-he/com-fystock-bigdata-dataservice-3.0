@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fystock.bigdata.cloud.mapper.msyql.MoneyRateInfoMapper">
+    <resultMap id="BaseResultMap" type="com.fystock.bigdata.cloud.entity.mysql.MoneyRateInfo">
+        <result column="id" property="id" jdbcType="BIGINT"/>
+        <result column="init_date" property="initDate" jdbcType="DATE"/>
+        <result column="from_money_type" property="fromMoneyType" jdbcType="VARCHAR"/>
+        <result column="to_money_type" property="toMoneyType" jdbcType="VARCHAR"/>
+        <result column="exch_rate" property="exchRate" jdbcType="DECIMAL"/>
+        <result column="reverse_rate" property="reverseRate" jdbcType="DECIMAL"/>
+        <result column="valid_date" property="validDate" jdbcType="DATE"/>
+        <result column="create_time" property="createTime" jdbcType="DATE"/>
+        <result column="update_time" property="updateTime" jdbcType="DATE"/>
+    </resultMap>
+
+    <select id="getAllMoneyRateInfoList" resultMap="BaseResultMap">
+        SELECT `id`,
+               `init_date`,
+               `from_money_type`,
+               `to_money_type`,
+               `exch_rate`,
+               `reverse_rate`,
+               `valid_date`,
+               `create_time`,
+               `update_time`
+        FROM money_rate_info mri
+    </select>
+
+    <update id="truncateMoneyRateInfo">
+        TRUNCATE TABLE money_rate_info
+    </update>
+
+    <insert id="insertMoneyRateInfoBatch" parameterType="java.util.List">
+        INSERT INTO money_rate_info
+        (
+        `id`,
+        `init_date`,
+        `from_money_type`,
+        `to_money_type`,
+        `exch_rate`,
+        `reverse_rate`,
+        `valid_date`,
+        `create_time`,
+        `update_time`
+        )
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            #{item.id},
+            #{item.initDate},
+            #{item.fromMoneyType},
+            #{item.toMoneyType},
+            #{item.exchRate},
+            #{item.reverseRate},
+            #{item.validDate},
+            #{item.createTime},
+            #{item.updateTime}
+            )
+        </foreach>
+    </insert>
+
+</mapper>

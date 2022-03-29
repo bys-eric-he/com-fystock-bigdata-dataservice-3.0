@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fystock.bigdata.cloud.mapper.GenderCountRatioUserInfoMapper">
+    <resultMap id="BaseResultMap" type="com.fystock.bigdata.cloud.entity.mysql.GenderCountRatioUserInfo">
+        <result column="gender" property="gender" jdbcType="VARCHAR"/>
+        <result column="total_user_count" property="totalUserCount" jdbcType="BIGINT"/>
+        <result column="gender_user_count" property="genderUserCount" jdbcType="BIGINT"/>
+        <result column="ratio" property="ratio" jdbcType="DECIMAL"/>
+        <result column="import_datetime" property="importDateTime" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="findAllGenderCountRatioUserInfo" resultMap="BaseResultMap">
+        SELECT
+            gender,
+            import_datetime,
+            gender_user_count,
+            ratio,
+            total_user_count
+        FROM
+            gender_count_ratio_user_info
+        WHERE
+                import_datetime = (
+                SELECT
+                    max(import_datetime)
+                FROM
+                    gender_count_ratio_user_info
+            )
+    </select>
+    <select id="findAllByImportDateTime" parameterType="string" resultMap="BaseResultMap">
+        SELECT
+            gender,
+            import_datetime,
+            gender_user_count,
+            ratio,
+            total_user_count
+        FROM
+            gender_count_ratio_user_info
+        WHERE
+            import_datetime = #{importDateTime}
+    </select>
+</mapper>

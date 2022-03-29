@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fystock.bigdata.cloud.mapper.RealTimeMarketCalculationMapper">
+    <select id="getMarketDataByTradeDate" parameterType="String" resultType="com.fystock.bigdata.cloud.entity.hbase.RealTimeMarketCalculation">
+        SELECT
+            ID AS id,
+            STOCK_CODE AS stockCode,
+            STOCK_NAME AS stockName,
+            INDU_CODE_A AS induCodeA,
+            INDU_NAME_A AS induNameA,
+            INDU_CODE_B AS induCodeB,
+            INDU_NAME_B AS induNameB,
+            PRICE AS price,
+            YES_PRICE AS yesPrice,
+            MKT_CODE AS exchangeType,
+            TRADE_DATE AS tradeDate,
+            UP_AND_DOWN AS upAndDown,
+            STATUS AS status,
+            TOTAL_MARKET_VALUE AS totalMarketValue,
+            FLOW_MARKET_VALUE AS flowMarketValue,
+            EVENT_TIME AS eventTime
+        FROM
+            HK_MARKET_DATA.REAL_TIME_MARKET_CALCULATION
+        WHERE ID IN (
+                SELECT
+                    MAX(ID)
+                FROM
+                    HK_MARKET_DATA.REAL_TIME_MARKET_CALCULATION
+                WHERE
+                    TRADE_DATE = #{tradeDate}
+                GROUP BY
+                    SUBSTR(ID, 1, 5)
+            )
+    </select>
+    <select id="getMarketDataByTradeDateAndSectionCode" resultType="com.fystock.bigdata.cloud.entity.hbase.RealTimeMarketCalculation">
+        SELECT
+            ID AS id,
+            STOCK_CODE AS stockCode,
+            STOCK_NAME AS stockName,
+            INDU_CODE_A AS induCodeA,
+            INDU_NAME_A AS induNameA,
+            INDU_CODE_B AS induCodeB,
+            INDU_NAME_B AS induNameB,
+            PRICE AS price,
+            YES_PRICE AS yesPrice,
+            MKT_CODE AS exchangeType,
+            TRADE_DATE AS tradeDate,
+            UP_AND_DOWN AS upAndDown,
+            STATUS AS status,
+            TOTAL_MARKET_VALUE AS totalMarketValue,
+            FLOW_MARKET_VALUE AS flowMarketValue,
+            EVENT_TIME AS eventTime
+        FROM
+            HK_MARKET_DATA.REAL_TIME_MARKET_CALCULATION
+        WHERE ID IN (
+            SELECT
+                MAX(ID)
+            FROM
+                HK_MARKET_DATA.REAL_TIME_MARKET_CALCULATION
+            WHERE
+                TRADE_DATE = #{tradeDate} AND REGEXP_SPLIT(ID,'_')[2]= #{sectionCode}
+            GROUP BY
+                SUBSTR(ID, 1, 5)
+        )
+    </select>
+    <select id="getMarketDataByTradeDateAndSectionCodeAndTopN" resultType="com.fystock.bigdata.cloud.entity.hbase.RealTimeMarketCalculation">
+        SELECT
+            ID AS id,
+            STOCK_CODE AS stockCode,
+            STOCK_NAME AS stockName,
+            INDU_CODE_A AS induCodeA,
+            INDU_NAME_A AS induNameA,
+            INDU_CODE_B AS induCodeB,
+            INDU_NAME_B AS induNameB,
+            PRICE AS price,
+            YES_PRICE AS yesPrice,
+            MKT_CODE AS exchangeType,
+            TRADE_DATE AS tradeDate,
+            UP_AND_DOWN AS upAndDown,
+            STATUS AS status,
+            TOTAL_MARKET_VALUE AS totalMarketValue,
+            FLOW_MARKET_VALUE AS flowMarketValue,
+            EVENT_TIME AS eventTime
+        FROM
+            HK_MARKET_DATA.REAL_TIME_MARKET_CALCULATION
+        WHERE ID IN (
+            SELECT
+                MAX(ID)
+            FROM
+                HK_MARKET_DATA.REAL_TIME_MARKET_CALCULATION
+            WHERE
+                TRADE_DATE = #{tradeDate} AND REGEXP_SPLIT(ID,'_')[2]= #{sectionCode}
+            GROUP BY
+                SUBSTR(ID, 1, 5)
+        )
+    </select>
+</mapper>

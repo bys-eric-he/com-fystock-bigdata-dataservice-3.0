@@ -1,0 +1,87 @@
+spring:
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 10.2.13.6:8848
+        namespace: 66781c6a-d2a8-479a-86c1-db4e43b3dee7 #public命名空间是nacos的保留空间，默认namespace对应ID为空。即不设置命名空间时候，默认的注册都在public空间下
+      config:
+        server-addr: 10.2.13.6:8848
+        file-extension: yaml
+        #命名空间
+        namespace: 66781c6a-d2a8-479a-86c1-db4e43b3dee7 #public命名空间是nacos的保留空间，默认namespace对应ID为空。即不设置命名空间时候，默认的注册都在public空间下
+        #读取的配置集合
+        extension-configs:
+          - data-id: nacos-dashboard-service-mybatis.yaml
+            group: DEV_GROUP
+            refresh: true
+          - data-id: nacos-dashboard-service-datasource.yaml
+            group: DEV_GROUP
+            refresh: true
+        enabled: true
+    sentinel:
+      transport:
+        dashboard: 10.2.13.6:7788
+        port: 8727
+        heartbeat-interval-ms: 1000
+      eager: true
+  cache:
+    type: redis
+  redis:
+    #host: 10.2.13.6 #sentinel模式下不用配
+    #port: 5001 #sentinel模式下不用配
+    timeout: 10000
+    database: 0
+    lettuce:
+      pool:
+        max-active: 8
+        max-wait: -1
+        max-idle: 8
+        min-idle: 0
+    sentinel:
+      master: mymaster
+      nodes:
+        - 10.2.13.6:5008
+        - 10.2.13.6:5009
+        - 10.2.13.6:5010
+  datasource:
+    clickhouse:
+      driverClassName: ru.yandex.clickhouse.ClickHouseDriver
+      type: com.alibaba.druid.pool.DruidDataSource
+      url: jdbc:clickhouse://10.2.13.22:8123/DWS_BIGSCREEN_DATA
+      username: admin
+      password: 9fszbigdata
+      initialSize: 10
+      maxActive: 100
+      minIdle: 10
+      validationQuery: SELECT 1
+dubbo:
+  # 配置服务信息
+  application:
+    name: dubbo-provider-9004
+    # 禁用QOS同一台机器可能会有端口冲突现象
+    qos-enable: false
+    qos-accept-foreign-ip: false
+  # 配置注册中心
+  registry:
+    address: nacos://10.2.13.6:8848
+    parameters:
+      namespace: f07e6fb1-df8c-4c70-a24e-ebdd06a55335
+  # 设置协议-协议由提供方指定消费方被动接受
+  protocol:
+    name: dubbo
+    port: 20884
+mybatis-plus:
+  mapper-locations: classpath*:mapper/*.xml
+  type-aliases-package: com.fystock.bigdata.cloud.entity.clickhouse
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    map-underscore-to-camel-case: true
+    cache-enabled: true
+    lazy-loading-enabled: true
+    multiple-result-sets-enabled: true
+    use-generated-keys: true
+    default-statement-timeout: 60
+    default-fetch-size: 100
+
+fyoauth:
+  resource-id: resource-1

@@ -1,0 +1,64 @@
+spring:
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 10.1.5.85:8848
+        namespace: 9a13df41-e463-4bde-a295-0e1035ed3a01 #public命名空间是nacos的保留空间，默认namespace对应ID为空。即不设置命名空间时候，默认的注册都在public空间下
+      config:
+        server-addr: 10.1.5.85:8848
+        file-extension: yaml
+        #命名空间
+        namespace: 9a13df41-e463-4bde-a295-0e1035ed3a01 #public命名空间是nacos的保留空间，默认namespace对应ID为空。即不设置命名空间时候，默认的注册都在public空间下
+        #读取的配置集合
+        extension-configs:
+          - data-id: nacos-bigdata-provider-mybatis.yaml
+            group: DEV_GROUP
+            refresh: true
+          - data-id: nacos-bigdata-provider-datasource.yaml
+            group: DEV_GROUP
+            refresh: true
+    sentinel: #限流组件Sentinel,向sentinel控制台注册本服务
+      transport:
+        dashboard: 10.1.5.85:7788 #连接sentinel的dashboard
+        port: 8722  # 如不设置，会自动从8719开始扫描，依次+1，直到找到未被占用的端口
+        heartbeat-interval-ms: 1000 # 心跳发送周期，默认值null 但在SimpleHttpHeartbeatSender会用默认值10秒
+      eager: true #消取懒加载 默认false情况下Sentinel 会在客户端首次调用的时候进行初始化，开始向控制台发送心跳包。
+  cache:
+    type: redis
+  redis:
+    #host: 10.2.13.6 #sentinel模式下不用配
+    #port: 5001 #sentinel模式下不用配
+    timeout: 10000
+    database: 0
+    lettuce:
+      pool:
+        max-active: 8
+        max-wait: -1
+        max-idle: 8
+        min-idle: 0
+    sentinel:
+      master: mymaster
+      nodes:
+        - 10.2.13.6:5008
+        - 10.2.13.6:5009
+        - 10.2.13.6:5010
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://10.2.13.6:3306/fystock_bigdata_warehouse?characterEncoding=utf8&allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC&rewriteBatchedStatements=true
+    username: root
+    password: root
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.fystock.bigdata.cloud.entity.mysql
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+fyoauth:
+  resource-id: resource-1

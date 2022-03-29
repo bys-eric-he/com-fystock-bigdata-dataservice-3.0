@@ -1,0 +1,11 @@
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.fystock.bigdata.cloud.entity.mysql #所有entity别名所在包
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl #打印sql语句便于调试
+# 添加sentinel依赖后 暴露/actuator/sentinel健康检查服务端点
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"

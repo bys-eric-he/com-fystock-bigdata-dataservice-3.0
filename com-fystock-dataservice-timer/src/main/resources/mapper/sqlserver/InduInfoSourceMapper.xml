@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fystock.bigdata.cloud.mapper.sqlserver.InduInfoSourceMapper">
+    <resultMap id="BaseResultMap" type="com.fystock.bigdata.cloud.entity.sqlserver.InduSourceInfo">
+        <result column="CORP_CODE" property="corpCode" jdbcType="VARCHAR"/>
+        <result column="INDU_SYS_MARK" property="induSysMark" jdbcType="INTEGER"/>
+        <result column="INDU_SYS_NAME" property="induSysName" jdbcType="VARCHAR"/>
+        <result column="INDU_CODE_A" property="induCodeA" jdbcType="VARCHAR"/>
+        <result column="INDU_NAME_A" property="induNameA" jdbcType="VARCHAR"/>
+        <result column="INDU_CODE_B" property="induCodeB" jdbcType="VARCHAR"/>
+        <result column="INDU_NAME_B" property="induNameB" jdbcType="VARCHAR"/>
+        <result column="CHANGE_DATE" property="changeDate" jdbcType="DATE"/>
+    </resultMap>
+
+    <select id="getAllInduInfoSourceList" resultMap="BaseResultMap">
+        SELECT A.SECCODE         AS CORP_CODE,
+               '201'             AS INDU_SYS_MARK,
+               'SHKIndustryCode' AS INDU_SYS_NAME,
+               A.F002V           AS INDU_CODE_A,
+               B.F001V           AS INDU_NAME_A,
+               A.F003V           AS INDU_CODE_B,
+               C.F001V           AS INDU_NAME_B,
+               A.Modified_Date   AS CHANGE_DATE,
+               GETDATE()         AS UPDATE_TIME
+        FROM XNHKS0401 AS A
+                 INNER JOIN XNHK0004 AS B
+                            ON A.F002V = B.CODE
+                 INNER JOIN XNHK0005 AS C
+                            ON A.F003V = C.CODE
+    </select>
+
+</mapper>

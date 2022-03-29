@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.fystock.bigdata.cloud.mapper.BigScreenTradeInduInfoMapper">
+
+    <resultMap type="com.fystock.bigdata.cloud.model.TradeInduInfo" id="TradeInduInfoMap">
+        <result property="induName" jdbcType="VARCHAR" column="indu_name_a"/>
+        <result property="induCode" jdbcType="VARCHAR" column="indu_code_a"/>
+        <result property="tradeCount" jdbcType="VARCHAR" column="trade_count"/>
+        <result property="rank" jdbcType="VARCHAR" column="rank"/>
+    </resultMap>
+
+    <select id="getTradeInduTopInfo" resultMap="TradeInduInfoMap">
+        SELECT rk as `rank`,
+               indu_name_a,
+               indu_code_a,
+               trade_count
+        FROM (
+                 SELECT flag,
+                        groupArray(indu_name_a)      as indu_name_a,
+                        groupArray(indu_code_a)      as indu_code_a,
+                        groupArray(business_qty_sum) as trade_count,
+                        arrayEnumerate(indu_code_a)  as rk
+                 FROM (WITH SUM(CAST(business_qty, 'UInt64')) as business_qty_sum
+                       SELECT
+                           indu_name_a,
+                           indu_code_a,
+                           business_qty_sum,
+                           MIN(arrflag) flag
+                       FROM
+                           DWS_BIGSCREEN_DATA.TRADE_JOIN_USER_AND_ASSET_TEST
+                           ARRAY
+                           JOIN [1] AS arrflag
+                       WHERE exchange_type ='K' AND is_grey = '0' AND toDate(trade_time)= #{tradeDate,jdbcType=VARCHAR}
+                       GROUP BY
+                           indu_name_a, indu_code_a
+                       ORDER BY
+                           business_qty_sum DESC
+                       LIMIT #{top,jdbcType=INTEGER})
+                 GROUP BY flag) ARRAY
+                 JOIN indu_code_a,
+             indu_name_a,
+             trade_count,
+             rk;
+    </select>
+
+    <select id="getTradeInduTopInfoByInterval" resultMap="TradeInduInfoMap">
+        SELECT rk as `rank`,
+               indu_name_a,
+               indu_code_a,
+               trade_count
+        FROM (
+                 SELECT flag,
+                        groupArray(indu_name_a)      as indu_name_a,
+                        groupArray(indu_code_a)      as indu_code_a,
+                        groupArray(business_qty_sum) as trade_count,
+                        arrayEnumerate(indu_code_a)  as rk
+                 FROM (WITH SUM(CAST(business_qty, 'UInt64')) as business_qty_sum
+                       SELECT
+                           indu_name_a,
+                           indu_code_a,
+                           business_qty_sum,
+                           MIN(arrflag) flag
+                       FROM
+                           DWS_BIGSCREEN_DATA.TRADE_JOIN_USER_AND_ASSET_TEST
+                           ARRAY
+                           JOIN [1] AS arrflag
+                       WHERE exchange_type ='K'
+                         AND is_grey = '0'
+                         AND toDate(trade_time) &gt;= #{beginTradeDate,jdbcType=VARCHAR}
+                         AND toDate(trade_time) &lt;= #{endTradeDate,jdbcType=VARCHAR}
+                       GROUP BY
+                           indu_name_a, indu_code_a
+                       ORDER BY
+                           business_qty_sum DESC
+                       LIMIT #{top,jdbcType=INTEGER})
+                 GROUP BY flag) ARRAY
+                 JOIN indu_code_a,
+             indu_name_a,
+             trade_count,
+             rk;
+    </select>
+</mapper>

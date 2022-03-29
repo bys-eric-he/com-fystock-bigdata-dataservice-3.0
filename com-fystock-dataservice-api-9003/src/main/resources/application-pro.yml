@@ -1,0 +1,94 @@
+spring:
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 10.1.5.85:8848
+        namespace: 9a13df41-e463-4bde-a295-0e1035ed3a01 #public命名空间是nacos的保留空间，默认namespace对应ID为空。即不设置命名空间时候，默认的注册都在public空间下
+      config:
+        server-addr: 10.1.5.85:8848
+        file-extension: yaml
+        #命名空间
+        namespace: 9a13df41-e463-4bde-a295-0e1035ed3a01 #public命名空间是nacos的保留空间，默认namespace对应ID为空。即不设置命名空间时候，默认的注册都在public空间下
+        #读取的配置集合
+        extension-configs:
+          - data-id: nacos-market-provider-mybatis.yaml
+            group: DEV_GROUP
+            refresh: true
+          - data-id: nacos-market-provider-datasource.yaml
+            group: DEV_GROUP
+            refresh: true
+    sentinel: #限流组件Sentinel,向sentinel控制台注册本服务
+      transport:
+        dashboard: 10.1.5.85:7788 #连接sentinel的dashboard
+        port: 8724 # 如不设置，会自动从8719开始扫描，依次+1，直到找到未被占用的端口
+        heartbeat-interval-ms: 1000 # 心跳发送周期，默认值null 但在SimpleHttpHeartbeatSender会用默认值10秒
+      eager: true #消取懒加载 默认false情况下Sentinel 会在客户端首次调用的时候进行初始化，开始向控制台发送心跳包。
+  cache:
+    type: redis
+  redis:
+    #host: 10.2.13.6 #sentinel模式下不用配
+    #port: 5001 #sentinel模式下不用配
+    timeout: 10000
+    database: 0
+    lettuce:
+      pool:
+        max-active: 8
+        max-wait: -1
+        max-idle: 8
+        min-idle: 0
+    sentinel:
+      master: mymaster
+      nodes:
+        - 10.2.13.6:5008
+        - 10.2.13.6:5009
+        - 10.2.13.6:5010
+  datasource:
+    url: jdbc:phoenix:10.2.13.22,10.2.13.23,10.2.13.24:2181
+    driver-class-name: org.apache.phoenix.jdbc.PhoenixDriver
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      minimum-idle: 10
+      maximum-pool-size: 20
+      auto-commit: true
+      idle-timeout: 30000
+      pool-name: custom-hikari
+      max-lifetime: 1800000
+      connection-timeout: 30000
+      connection-test-query: SELECT 1
+dubbo:
+  # 配置服务信息
+  application:
+    name: dubbo-provider-9003
+    # 禁用QOS同一台机器可能会有端口冲突现象
+    qos-enable: false
+    qos-accept-foreign-ip: false
+  # 配置注册中心
+  registry:
+    address: nacos://10.2.13.6:8848
+    parameters:
+      namespace: f07e6fb1-df8c-4c70-a24e-ebdd06a55335
+  # 设置协议-协议由提供方指定消费方被动接受
+  protocol:
+    name: dubbo
+    port: 20883
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.fystock.bigdata.cloud.entity.hbase
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+fyoauth:
+  resource-id: resource-1
+
+
+# 需要在服务器上添加如下HOST
+#  10.2.13.20  bigdata020
+#  10.2.13.21  bigdata021
+#  10.2.13.22  bigdata022
+#  10.2.13.23  bigdata023
+#  10.2.13.24  bigdata024

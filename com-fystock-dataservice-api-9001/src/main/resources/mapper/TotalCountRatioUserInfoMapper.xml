@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fystock.bigdata.cloud.mapper.TotalCountRatioUserInfoMapper">
+    <resultMap id="BaseResultMap" type="com.fystock.bigdata.cloud.entity.mysql.TotalCountRatioUserInfo">
+        <result column="type" property="type" jdbcType="VARCHAR"/>
+        <result column="total_count" property="totalCount" jdbcType="BIGINT"/>
+        <result column="register_total_count" property="registerTotalCount" jdbcType="BIGINT"/>
+        <result column="ratio" property="ratio" jdbcType="DECIMAL"/>
+        <result column="import_datetime" property="importDateTime" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="findAllTotalCountRatioUserInfo" resultMap="BaseResultMap">
+        SELECT
+            type,
+            import_datetime,
+            ratio,
+            register_total_count,
+            total_count
+        FROM
+            total_count_ratio_user_info
+        WHERE
+            import_datetime=(
+                SELECT
+                    MAX(import_datetime)
+                FROM
+                    total_count_ratio_user_info
+        )
+    </select>
+
+    <select id="findAllTotalCountRatioUserInfoByImportDateTime" parameterType="string" resultMap="BaseResultMap">
+        SELECT
+            type,
+            import_datetime,
+            ratio,
+            register_total_count,
+            total_count
+        FROM
+            total_count_ratio_user_info
+        WHERE
+            import_datetime = #{importDateTime}
+    </select>
+
+</mapper>

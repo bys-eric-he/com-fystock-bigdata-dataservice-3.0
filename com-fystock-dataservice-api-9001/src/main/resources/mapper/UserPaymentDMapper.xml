@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fystock.bigdata.cloud.mapper.UserPaymentDMapper">
+    <resultMap id="BaseResultMap" type="com.fystock.bigdata.cloud.entity.mysql.UserPaymentDInfo">
+        <result column="day_vip_count" property="dayVipCount" jdbcType="INTEGER"/>
+        <result column="day_vip_sum" property="dayVipSum" jdbcType="DECIMAL"/>
+        <result column="day_vip_total_count" property="dayVipTotalCount" jdbcType="INTEGER"/>
+        <result column="day_vip_total_sum" property="dayVipTotalSum" jdbcType="DECIMAL"/>
+        <result column="day_hunter_count" property="dayHunterCount" jdbcType="INTEGER"/>
+        <result column="day_hunter_sum" property="dayHunterSum" jdbcType="DECIMAL"/>
+        <result column="day_hunter_total_count" property="dayHunterTotalCount" jdbcType="INTEGER"/>
+        <result column="day_hunter_total_sum" property="dayHunterTotalSum" jdbcType="DECIMAL"/>
+        <result column="import_datetime" property="importDateTime" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="findAllUserPaymentDInfo" resultMap="BaseResultMap">
+        SELECT
+            day_vip_count,
+            day_vip_sum,
+            day_vip_total_count,
+            day_vip_total_sum,
+            day_hunter_count,
+            day_hunter_sum,
+            day_hunter_total_count,
+            day_hunter_total_sum,
+            import_datetime
+        FROM
+            user_payment_d
+        WHERE import_datetime = (
+            SELECT max(import_datetime)
+            FROM user_payment_d
+        )
+    </select>
+
+    <select id="findAllUserPaymentDInfoByImportDateTime" parameterType="string" resultMap="BaseResultMap">
+        SELECT
+            day_vip_count,
+            day_vip_sum,
+            day_vip_total_count,
+            day_vip_total_sum,
+            day_hunter_count,
+            day_hunter_sum,
+            day_hunter_total_count,
+            day_hunter_total_sum,
+            import_datetime
+        FROM
+            user_payment_d
+        WHERE import_datetime = #{importDateTime}
+    </select>
+</mapper>

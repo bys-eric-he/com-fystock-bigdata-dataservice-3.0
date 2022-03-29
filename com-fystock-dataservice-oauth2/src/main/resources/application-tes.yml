@@ -1,0 +1,52 @@
+spring:
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 10.2.13.6:8848
+        namespace: 66781c6a-d2a8-479a-86c1-db4e43b3dee7 #public命名空间是nacos的保留空间，默认namespace对应ID为空。即不设置命名空间时候，默认的注册都在public空间下
+      config:
+        server-addr: 10.2.13.6:8848
+        file-extension: yaml
+        #命名空间
+        namespace: 66781c6a-d2a8-479a-86c1-db4e43b3dee7 #public命名空间是nacos的保留空间，默认namespace对应ID为空。即不设置命名空间时候，默认的注册都在public空间下
+        #读取的配置集合
+        extension-configs:
+          - data-id: auth-service-mybatis.yaml
+            group: DEV_GROUP
+            refresh: true
+          - data-id: auth-service-datasource.yaml
+            group: DEV_GROUP
+            refresh: true
+        enabled: true
+    sentinel:
+      transport:
+        dashboard: 10.2.13.6:7788
+        port: 8726
+        heartbeat-interval-ms: 1000
+      eager: true
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://10.2.13.21:3306/HK_BIGDATA_OAUTH2?characterEncoding=utf8&allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC&rewriteBatchedStatements=true
+    username: root
+    password: Fuyuanhk_bigdata
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.fystock.bigdata.cloud.entity.mysql
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+fyoauth:
+  token:
+    accesstoken-validity-second: 7200 #60 * 60 * 2 (2小时)
+    refreshtoken-validity-second: 604800  #60 * 60 * 24 * 7 (7天)
+  resource-id: resource-2
+  authorization:
+    client-id: client-1
+    client-secret: secret
+    login-type: password

@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.fystock.bigdata.cloud.mapper.BigScreenTradeStockActiveTopInfoMapper">
+
+    <resultMap type="com.fystock.bigdata.cloud.redis.BigScreenTradeStockActiveTopInfo" id="TradeStockActiveTopInfoMap">
+        <result property="businessQty" jdbcType="INTEGER" column="business_qty"/>
+        <result property="businessBalance" jdbcType="DECIMAL" column="business_balance"/>
+        <result property="induNameA" jdbcType="VARCHAR" column="indu_name_a"/>
+        <result property="induCodeA" jdbcType="VARCHAR" column="indu_code_a"/>
+        <result property="participations" jdbcType="INTEGER" column="participations"/>
+        <result property="stkCode" jdbcType="VARCHAR" column="stk_code"/>
+        <result property="stkName" jdbcType="VARCHAR" column="stk_name"/>
+    </resultMap>
+
+    <select id="getTradeStockActiveTopInfo" resultMap="TradeStockActiveTopInfoMap">
+        SELECT rk as `rank`,
+               indu_name_a,
+               indu_code_a,
+               business_qty,
+               stk_code,
+               stk_name,
+               participations,
+               business_balance
+        FROM (
+                 SELECT flag,
+                        groupArray(indu_name_a)      as indu_name_a,
+                        groupArray(indu_code_a)      as indu_code_a,
+                        groupArray(business_qty)     as business_qty,
+                        groupArray(stk_code)         as stk_code,
+                        groupArray(stk_name)         as stk_name,
+                        groupArray(participations)   as participations,
+                        groupArray(business_balance) as business_balance,
+                        arrayEnumerate(indu_code_a)  as rk
+                 FROM (WITH SUM(CAST(business_qty, 'UInt64')) as business_qty
+                       SELECT
+                           indu_name_a,
+                           indu_code_a,
+                           business_qty,
+                           stk_code,
+                           stk_name,
+                           COUNT (DISTINCT trade_account) as participations,
+                           SUM(CAST(business_balance, 'Float64')) as business_balance,
+                           MIN(arrflag) flag
+                       FROM
+                           DWS_BIGSCREEN_DATA.TRADE_JOIN_USER_AND_ASSET_TEST
+                           ARRAY
+                           JOIN [1] AS arrflag
+                       WHERE exchange_type ='K' AND is_grey = '0' AND toDate(trade_time)= #{tradeDate,jdbcType=VARCHAR}
+                       GROUP BY
+                           stk_code, stk_name, indu_name_a, indu_code_a
+                       ORDER BY
+                           business_qty DESC
+                       LIMIT #{top,jdbcType=INTEGER})
+                 GROUP BY flag) ARRAY
+                 JOIN indu_code_a,
+             indu_name_a,
+             business_qty,
+             stk_code,
+             stk_name,
+             participations,
+             business_balance,
+             rk;
+    </select>
+
+    <select id="getTradeStockActiveTopInfoByInterval" resultMap="TradeStockActiveTopInfoMap">
+        SELECT rk as `rank`,
+               indu_name_a,
+               indu_code_a,
+               business_qty,
+               stk_code,
+               stk_name,
+               participations,
+               business_balance
+        FROM (
+                 SELECT flag,
+                        groupArray(indu_name_a)      as indu_name_a,
+                        groupArray(indu_code_a)      as indu_code_a,
+                        groupArray(business_qty)     as business_qty,
+                        groupArray(stk_code)         as stk_code,
+                        groupArray(stk_name)         as stk_name,
+                        groupArray(participations)   as participations,
+                        groupArray(business_balance) as business_balance,
+                        arrayEnumerate(indu_code_a)  as rk
+                 FROM (WITH SUM(CAST(business_qty, 'UInt64')) as business_qty
+                       SELECT
+                           indu_name_a,
+                           indu_code_a,
+                           business_qty,
+                           stk_code,
+                           stk_name,
+                           COUNT (DISTINCT trade_account) as participations,
+                           SUM(CAST(business_balance, 'Float64')) as business_balance,
+                           MIN(arrflag) flag
+                       FROM
+                           DWS_BIGSCREEN_DATA.TRADE_JOIN_USER_AND_ASSET_TEST
+                           ARRAY
+                           JOIN [1] AS arrflag
+                       WHERE exchange_type ='K'
+                         AND is_grey = '0'
+                         AND toDate(trade_time) &gt;= #{beginTradeDate,jdbcType=VARCHAR}
+                         AND toDate(trade_time) &lt;= #{endTradeDate,jdbcType=VARCHAR}
+                       GROUP BY
+                           stk_code, stk_name, indu_name_a, indu_code_a
+                       ORDER BY
+                           business_qty DESC
+                       LIMIT #{top,jdbcType=INTEGER})
+                 GROUP BY flag) ARRAY
+                 JOIN indu_code_a,
+             indu_name_a,
+             business_qty,
+             stk_code,
+             stk_name,
+             participations,
+             business_balance,
+             rk;
+    </select>
+</mapper>
